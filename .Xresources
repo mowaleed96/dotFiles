@@ -1,0 +1,45 @@
+!!THEME
+URxvt.color0: #3B444F
+URxvt.color8: #4A585A
+URxvt.color1: #CD546C
+URxvt.color9: #CD546C
+URxvt.color2: #A5AF86
+URxvt.color10: #BDC79E
+URxvt.color3: #CD7860
+URxvt.color11: #E88773
+URxvt.color4: #7A9388
+URxvt.color12: #94B1A3
+URxvt.color5: #75434C
+URxvt.color13: #BB6C73
+URxvt.color6: #767D75
+URxvt.color14: #9DA69E
+URxvt.color7: #C2C2A8
+URxvt.color15: #DBDAC1
+URxvt.background: #292929
+URxvt.foreground: #a3a6ab
+
+!!URxvt Appearance
+URxvt*font: xft:Consolas:pixelsize=13,xft:DejaVu Sans Mono for Powerline:pixelsize=13
+URxvt.letterSpace: -1
+URxvt.lineSpace: 0
+URxvt.cursorBlink: true
+URxvt.cursorUnderline: false
+URxvt.saveline: 2048
+URxvt.scrollBar: false
+URxvt.scrollBar_right: false
+URxvt.urgentOnBell: true
+URxvt.depth: 24
+
+!! Copy Paste & Other Extensions
+URxvt.perl-ext-common: default,clipboard,url-select,keyboard-select
+URxvt.copyCommand: xclip -i -selection clipboard
+URxvt.pasteCommand: xclip -o -selection clipboard
+URxvt.keysym.M-c: perl:clipboard:copy
+URxvt.keysym.M-v: perl:clipboard:paste
+URxvt.keysym.M-C-v: perl:clipboard:paste_escaped
+URxvt.keysym.M-Escape: perl:keyboard-select:activate
+URxvt.keysym.M-s: perl:keyboard-select:search
+URxvt.keysym.M-u: perl:url-select:select_next
+URxvt.urlLauncher: firefox
+URxvt.underlineURLs: true
+URxvt.urlButton: 1
