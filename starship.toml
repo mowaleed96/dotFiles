@@ -1,0 +1,21 @@
+# Disable the blank line at the start of the prompt
+add_newline = false
+
+[character]
+success_symbol = "[➜](bold blue)"
+error_symbol = "[✖](bold red)"
+
+[package]
+disabled = true
+symbol = ""
+
+[directory]
+truncate_to_repo = true
+truncation_length = 12
+
+[username]
+show_always = true
+style_user = "bold green"
+
+[nodejs]
+disabled = true
