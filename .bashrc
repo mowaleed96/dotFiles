@@ -37,14 +37,13 @@ fi
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
-    xterm-color|*-256color) color_prompt=yes;;
+    xterm-color) color_prompt=yes;;
 esac
-
 
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
 # should be on the output of commands, not on the prompt
-#force_color_prompt=yes
+# force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
@@ -56,10 +55,6 @@ if [ -n "$force_color_prompt" ]; then
 	color_prompt=
     fi
 fi
-
-parse_git_branch() {
-     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
-}
 
 if [ "$color_prompt" = yes ]; then
     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
@@ -89,9 +84,6 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
-# colored GCC warnings and errors
-#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-
 # some more ls aliases
 alias ll='ls -alF'
 alias la='ls -A'
@@ -110,19 +102,6 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-# Let's add some colors ! and git branch too
-function color_my_prompt {
-    local __user_and_host="\[\033[01;32m\]\u@\h"
-    local __cur_location="\[\033[01;34m\]\w"
-    local __git_branch_color="\[\033[31m\]"
-    local __git_branch='`git branch 2> /dev/null | grep -e ^* | sed -E  s/^\\\\\*\ \(.+\)$/\(\\\\\1\)\ /`'
-    local __prompt_tail="\[\033[01;34m\]$"
-    local __last_color="\[\033[00m\]"
-    export PS1="$__user_and_host:$__cur_location $__git_branch_color$__git_branch$__prompt_tail$__last_color "
-}
-
-color_my_prompt
-
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
@@ -134,7 +113,91 @@ if ! shopt -oq posix; then
   fi
 fi
 
-if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
-  exec tmux
-fi
 
+# Exporting dotfiles path
+export DOTFILES="$HOME/dotfiles"
+
+# Loading config files
+[[ -s "$DOTFILES/system/env.sh" ]] && source "$DOTFILES/system/env.sh"
+[[ -s "$DOTFILES/system/path.sh" ]] && source "$DOTFILES/system/path.sh"
+[[ -s "$DOTFILES/completions/npm-completion.sh" ]] && source "$DOTFILES/completions/npm-completion.sh"
+[[ -s "$DOTFILES/completions/hub-completion.sh" ]] && source "$DOTFILES/completions/hub-completion.sh"
+[[ -s "$DOTFILES/completions/gh-completion.sh" ]] && source "$DOTFILES/completions/gh-completion.sh"
+
+#if [ ! -z "$(ls -A "$DOTFILES/.no-check")" ]; then
+#   for file in $DOTFILES/.no-check/*; do
+#     source $file;
+#   done
+#fi
+
+# modified version of https://github.com/xvoland/Extract/blob/master/extract.sh
+# Extracting different archives with one function !
+function extract {
+ if [ -z "$1" ]; then
+    # display usage if no parameters given
+    echo "Usage: extract <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz>"
+ else
+    if [ -f "$1" ] ; then
+
+        # I hate scattering files around !, make a directory to extract files in if needed
+        name=${2}
+        archive_dir=.
+        if [ -n "$name" ]; then
+          mkdir $name && cd $name
+          archive_dir=$archive_dir/..
+        fi
+
+        case "$1" in
+          *.tar.bz2)   tar xvjf $archive_dir/"$1"    ;;
+          *.tar.gz)    tar xvzf $archive_dir/"$1"    ;;
+          *.tar.xz)    tar xvJf $archive_dir/"$1"    ;;
+          *.lzma)      unlzma $archive_dir/"$1"      ;;
+          *.bz2)       bunzip2 $archive_dir/"$1"     ;;
+          *.rar)       unrar x -ad $archive_dir/"$1" ;;
+          *.gz)        gunzip $archive_dir/"$1"      ;;
+          *.tar)       tar xvf $archive_dir/"$1"     ;;
+          *.tbz2)      tar xvjf $archive_dir/"$1"    ;;
+          *.tgz)       tar xvzf $archive_dir/"$1"    ;;
+          *.zip)       unzip $archive_dir/"$1"       ;;
+          *.Z)         uncompress $archive_dir/"$1"  ;;
+          *.7z)        7z x $archive_dir/"$1"        ;;
+          *.xz)        unxz $archive_dir/"$1"        ;;
+          *.exe)       cabextract $archive_dir/"$1"  ;;
+          *)           echo "extract: '$1' - unknown archive method" ;;
+        esac
+    else
+        echo "'$1' - file does not exist"
+    fi
+fi
+}
+
+# Let's add some colors ! and git branch too
+function color_my_prompt {
+    local __user_and_host="\[\033[01;32m\]\u@\h"
+    local __cur_location="\[\033[01;34m\]\w"
+    local __git_branch_color="\[\033[31m\]"
+    local __git_branch='`git branch 2> /dev/null | grep -e ^* | sed -E  s/^\\\\\*\ \(.+\)$/\(\\\\\1\)\ /`'
+    local __prompt_tail="\[\033[01;34m\]$"
+    local __last_color="\[\033[00m\]"
+    export PS1="$__user_and_host $__cur_location $__git_branch_color$__git_branch$__prompt_tail$__last_color "
+}
+
+color_my_prompt
+
+# NVM
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# GVM
+# [[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
+
+# virtualenvwrapper init script
+# source $HOME/.local/bin/virtualenvwrapper.sh
+
+# eval "$(direnv hook bash)"
+
+# run starship's alias, enable/disable by commenting
+# star
+
+eval "$(starship init bash)"
